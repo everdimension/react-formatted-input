@@ -1,17 +1,51 @@
 /* global window */
 import React, { PropTypes as t } from 'react';
 import omit from 'lodash/omit';
-import { KEY_CODES } from '../constants';
+import { KEY_CODES } from './constants';
 
 const notNumberRe = /[^\d]/;
 
+const shortLocaleMap = {
+	en: 'en-US',
+	zh: 'zh-CN',
+	ru: 'ru-RU',
+	de: 'de-DE',
+	fr: 'fr-FR',
+	pt: 'pt-PT',
+	es: 'es-ES',
+	id: 'id-ID',
+	it: 'it-IT',
+	nl: 'nl-NL',
+	pl: 'pl-PL',
+};
+
+const localeRe = {
+	'en-US': /[^\d\.\-]/g,
+	'zh-CN': /[^\d\.\-]/g,
+	'ru-RU': /[^\d,\-]/g,
+	'de-DE': /[^\d,\-]/g,
+	'fr-FR': /[^\d,\-]/g,
+	'pt-PT': /[^\d,\-]/g,
+	'pt-BR': /[^\d,\-]/g,
+	'es-ES': /[^\d,\-]/g,
+	'id-ID': /[^\d,\-]/g,
+	'it-IT': /[^\d,\-]/g,
+	'nl-NL': /[^\d,\-]/g,
+	'pl-PL': /[^\d,\-]/g,
+};
+
+function getFullLocale(locale) {
+	return locale.length === 2 ? shortLocaleMap[locale] : locale;
+}
+
 function getUnformattedValue(n, locale) {
-	if (!n) {
+	if (!n || n === '-' || typeof n === 'number') {
 		return n;
 	}
 
 	const stripped = n
-		.replace(notNumberRe, '');
+		.replace(localeRe[locale], '')
+		.replace(',', '.');
 
 	const parsed = parseFloat(stripped, 10);
 	if (isNaN(parsed)) { return n; }
@@ -31,8 +65,8 @@ const propTypes = {
 	value: t.oneOfType([t.number, t.string]),
 	locale: t.string,
 	onChange: t.func.isRequired,
-  getFormattedNumber: t.func,
-  getUnformattedValue: t.func,
+	getFormattedNumber: t.func,
+	getUnformattedValue: t.func,
 };
 
 const defaultProps = {
@@ -157,9 +191,9 @@ class FormattedInput extends React.Component {
 		const newValue = this.getUnformattedValue(value, this.state.locale).toString();
 		if (newValue === this.state.value) { return; }
 		// const updatedEvent = Object.assign({}, evt, {
-		// 	target: Object.assign({}, evt.target, {
-		// 		value: newValue,
-		// 	}),
+		//	 target: Object.assign({}, evt.target, {
+		//		 value: newValue,
+		//	 }),
 		// });
 		this.props.onChange(evt, newValue);
 	}
