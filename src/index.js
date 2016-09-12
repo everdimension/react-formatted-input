@@ -214,7 +214,7 @@ class FormattedInput extends React.Component {
 				type="text"
 				{...otherProps}
 				ref={this.mount}
-				defaultValue={this.state.text}
+				value={this.state.text}
 				onKeyDown={this.handleKeyDown}
 				onChange={this.handleChange}
 			/>
