@@ -1,53 +1,37 @@
-/* global window */
 import React, { PropTypes as t } from 'react';
 import omit from 'lodash/omit';
 import { KEY_CODES } from './constants';
 
-const notNumberRe = /[^\d]/;
+const notNumberRe = /[^\d]/g;
 
-const shortLocaleMap = {
-	en: 'en-US',
-	zh: 'zh-CN',
-	ru: 'ru-RU',
-	de: 'de-DE',
-	fr: 'fr-FR',
-	pt: 'pt-PT',
-	es: 'es-ES',
-	id: 'id-ID',
-	it: 'it-IT',
-	nl: 'nl-NL',
-	pl: 'pl-PL',
-};
+function getFormattedString(n) {
+	if (!n || !n.toString) {
+		return n;
+	}
 
-const localeRe = {
-	'en-US': /[^\d\.\-]/g,
-	'zh-CN': /[^\d\.\-]/g,
-	'ru-RU': /[^\d,\-]/g,
-	'de-DE': /[^\d,\-]/g,
-	'fr-FR': /[^\d,\-]/g,
-	'pt-PT': /[^\d,\-]/g,
-	'pt-BR': /[^\d,\-]/g,
-	'es-ES': /[^\d,\-]/g,
-	'id-ID': /[^\d,\-]/g,
-	'it-IT': /[^\d,\-]/g,
-	'nl-NL': /[^\d,\-]/g,
-	'pl-PL': /[^\d,\-]/g,
-};
-
-function getFullLocale(locale) {
-	return locale.length === 2 ? shortLocaleMap[locale] : locale;
+	return n.toString()
+		.split('')
+		.reverse()
+		.reduce((res, d, index) => {
+		  if (index && index % 3 === 0) {
+		   res.push(' ');
+		  }
+		  res.push(d);
+		  return res;
+		}, [])
+		.reverse()
+		.join('');
 }
 
-function getUnformattedValue(n, locale) {
+function getUnformattedValue(n) {
 	if (!n || n === '-' || typeof n === 'number') {
 		return n;
 	}
 
 	const stripped = n
-		.replace(localeRe[locale], '')
-		.replace(',', '.');
+		.replace(notNumberRe, '');
 
-	const parsed = parseFloat(stripped, 10);
+	const parsed = parseFloat(stripped);
 	if (isNaN(parsed)) { return n; }
 
 	return parsed;
@@ -63,60 +47,42 @@ function setCursorPosition(el, pos) {
 
 const propTypes = {
 	value: t.oneOfType([t.number, t.string]),
-	locale: t.string,
 	onChange: t.func.isRequired,
-	getFormattedNumber: t.func,
+	getFormattedValue: t.func,
 	getUnformattedValue: t.func,
 };
 
 const defaultProps = {
 	value: '',
-	locale: 'en-US',
 };
 
 class FormattedInput extends React.Component {
 	constructor(props) {
 		super(props);
 
-		if (!window.Intl) {
-			throw new Error('Intl API required on window');
-		}
-
 		this.handleChange = this.handleChange.bind(this);
 		this.handleKeyDown = this.handleKeyDown.bind(this);
-		this.setFormatter = this.setFormatter.bind(this);
-		this.getFormattedNumber = props.getFormattedNumber || this.getFormattedNumber.bind(this);
+		this.getFormattedValue = props.getFormattedValue || this.getFormattedValue.bind(this);
 		this.getUnformattedValue = props.getUnformattedValue || getUnformattedValue;
 		this.mount = this.mount.bind(this);
 		this.focus = this.focus.bind(this);
 
-		const { locale, value } = props;
-		const fullLocale = getFullLocale(locale);
-		this.setFormatter(fullLocale);
+		const { value } = props;
 		this.state = {
 			selectionStart: 0,
 			selectionEnd: 0,
 			cursorPosition: 0,
 			value,
-			locale: fullLocale,
-			text: this.getFormattedNumber(value),
+			text: this.getFormattedValue(value),
 			keyCode: null,
 		};
 	}
 
 	componentWillReceiveProps(nextProps) {
-		const { locale, value } = nextProps;
-		let newLocale;
-		if (locale !== this.props.locale) {
-			newLocale = getFullLocale(locale);
-			this.setFormatter(newLocale);
-		}
-		const text = this.getFormattedNumber(value);
+		const { value } = nextProps;
+		const text = this.getFormattedValue(value);
 
 		const newState = { value, text };
-		if (newLocale) {
-			newState.locale = newLocale;
-		}
 		this.setState(newState);
 	}
 
@@ -166,15 +132,12 @@ class FormattedInput extends React.Component {
 		setCursorPosition(this.inputElement, newCursorPosition);
 	}
 
-	setFormatter(locale) {
-		this.formatter = new Intl.NumberFormat(locale);
-	}
+	getFormattedValue(n) {
+		if (!n) {
+			return n;
+		}
 
-	getFormattedNumber(n) {
-		if (!n || n === '-') { return n; }
-		const formattedString = this.formatter.format(n);
-		if (!/^[\-\d]/.test(formattedString)) { return n; }
-		return formattedString;
+		return getFormattedString(n);
 	}
 
 	mount(node) {
@@ -188,7 +151,7 @@ class FormattedInput extends React.Component {
 
 	handleChange(evt) {
 		const { value } = evt.target;
-		const newValue = this.getUnformattedValue(value, this.state.locale).toString();
+		const newValue = this.getUnformattedValue(value).toString();
 		if (newValue === this.state.value) { return; }
 		// const updatedEvent = Object.assign({}, evt, {
 		//	 target: Object.assign({}, evt.target, {
@@ -208,7 +171,7 @@ class FormattedInput extends React.Component {
 	}
 
 	render() {
-		const otherProps = omit(this.props, ['value', 'locale', 'getUnformattedValue', 'getFormattedNumber']);
+		const otherProps = omit(this.props, ['value', 'getUnformattedValue', 'getFormattedValue']);
 		return (
 			<input
 				type="text"
