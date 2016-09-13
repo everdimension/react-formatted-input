@@ -1,6 +1,6 @@
 src
 scripts
-examples
+examples/build
 webpack.config.js
 .babelrc
 .eslintrc
