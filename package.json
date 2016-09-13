@@ -12,9 +12,9 @@
   "keywords": [
     "react",
     "react-component",
-    "outside click",
-    "document click",
-    "close on close"
+    "masked input",
+    "formatted input",
+    "parse"
   ],
   "license": "ISC",
   "peerDependencies": {
