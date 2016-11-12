@@ -2,7 +2,25 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import FormattedInput from '../../src';
 
-class ExamplePage extends React.Component {
+function getFormattedValue(str) {
+  if (!str) {
+    return str;
+  }
+  const formatted = new Intl.NumberFormat('ru', { maximumFractionDigits: 20 }).format(str);
+  if (/[^\.]+\.$/.test(str)) {
+    return `${formatted},`;
+  }
+  return formatted;
+}
+
+function getUnformattedValue(str) {
+  if (!str) {
+    return str;
+  }
+  return str.replace(/([^\d,]|,(?=.*,))/g, '').replace(',', '.');
+}
+
+class NumberInput extends React.Component {
   constructor() {
     super();
     this.state = {};
@@ -22,6 +40,8 @@ class ExamplePage extends React.Component {
         <FormattedInput
           type="text"
           value={this.state.value}
+          getFormattedValue={getFormattedValue}
+          getUnformattedValue={getUnformattedValue}
           onChange={this.handleChange}
         />
       </div>
@@ -31,6 +51,6 @@ class ExamplePage extends React.Component {
 }
 
 ReactDOM.render(
-  <ExamplePage />,
+  <NumberInput />,
   document.getElementById('app')
 );

@@ -1,41 +1,8 @@
 import React, { PropTypes as t } from 'react';
 import omit from 'lodash/omit';
+import difference from 'lodash/difference';
+import findIndex from 'lodash/findIndex';
 import { KEY_CODES } from './constants';
-
-const notNumberRe = /[^\d]/g;
-
-function getFormattedString(n) {
-	if (!n || !n.toString) {
-		return n;
-	}
-
-	return n.toString()
-		.split('')
-		.reverse()
-		.reduce((res, d, index) => {
-		  if (index && index % 3 === 0) {
-		   res.push(' ');
-		  }
-		  res.push(d);
-		  return res;
-		}, [])
-		.reverse()
-		.join('');
-}
-
-function getUnformattedValue(n) {
-	if (!n || n === '-' || typeof n === 'number') {
-		return n;
-	}
-
-	const stripped = n
-		.replace(notNumberRe, '');
-
-	const parsed = parseFloat(stripped);
-	if (isNaN(parsed)) { return n; }
-
-	return parsed;
-}
 
 function getCursorPosition(el) {
 	return el.selectionStart;
@@ -62,6 +29,7 @@ class FormattedInput extends React.Component {
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleKeyDown = this.handleKeyDown.bind(this);
+		this.saveCursorPosition = this.saveCursorPosition.bind(this);
 		this.getFormattedValue = props.getFormattedValue || this.getFormattedValue.bind(this);
 		this.getUnformattedValue = props.getUnformattedValue || getUnformattedValue;
 		this.mount = this.mount.bind(this);
@@ -75,6 +43,7 @@ class FormattedInput extends React.Component {
 			value,
 			text: this.getFormattedValue(value),
 			keyCode: null,
+			shiftKey: false,
 		};
 	}
 
@@ -94,12 +63,18 @@ class FormattedInput extends React.Component {
 			text,
 			keyCode,
 			value,
+			shiftKey,
 		} = this.state;
+		if (this.inputElement.value !== text) {
+			this.inputElement.value = text;
+		}
 		if (text === prevState.text) {
+			if (cursorPosition !== prevState.cursorPosition && !shiftKey) {
+				setCursorPosition(this.inputElement, cursorPosition)
+			}
 			return;
 		}
 
-		this.inputElement.value = text;
 		if (!text) {
 			// dont calculate and set cursor position for empty value
 			// because it is always correct anyway
@@ -108,36 +83,44 @@ class FormattedInput extends React.Component {
 
 		const valueDifference = value.length - prevState.value.length;
 		const textDifference = text.length - prevState.text.length;
-		const delta = textDifference - valueDifference;
-		const isDeletion = valueDifference < 0;
+		const differenceStartPos = findIndex(
+			text.split(''),
+			(letter, i) => letter !== prevState.text.charAt(i)
+		);
+		const differentBeforeCursor = differenceStartPos < cursorPosition;
+		if (!differentBeforeCursor) {
+			setCursorPosition(this.inputElement, cursorPosition);
+			return;
+		}
 
-		// if some text was selected and new text differs from old text,
-		// it means that selected text has been removed
-		const isDeletionOfSelection = selectionEnd > selectionStart;
+		const prevValueBeforeCursor = prevState.value.slice(0, prevState.cursorPosition);
+		const prevTextBeforeCursor = prevState.text.slice(0, prevState.cursorPosition);
+		const valueBeforeCursor = value.slice(0, cursorPosition);
+		const textBeforeCursor = text.slice(0, cursorPosition);
+		const prevMaskDifference = difference(prevTextBeforeCursor.split(''), prevValueBeforeCursor.split(''));
+		const maskDifference = difference(textBeforeCursor.split(''), valueBeforeCursor.split(''));
+		const maskDelta = maskDifference.length - prevMaskDifference.length;
+
 		let newCursorPosition;
-		if (isDeletionOfSelection) {
-			// if selected text was removed and/or new text has been
-			// pasted or entered in place of selected text,
-			// cursor position must be at the end of newly added text
-			// or in place of selection if there's no new text
-			newCursorPosition = selectionEnd + textDifference;
-		} else if (isDeletion && keyCode === KEY_CODES.DEL) {
-			newCursorPosition = cursorPosition + delta;
-		} else if (isDeletion) {
-			newCursorPosition = (cursorPosition - 1) + delta;
+
+		if (
+			maskDelta === 0 &&
+			maskDifference.length === 1 &&
+			maskDifference.indexOf(text.charAt(prevState.cursorPosition - 1)) !== -1
+		) {
+			newCursorPosition = prevState.cursorPosition;
+		} else if (
+			maskDelta === 1 &&
+			maskDifference.length === 1 &&
+			maskDifference.indexOf(text.charAt(cursorPosition - 1)) !== -1
+		) {
+			newCursorPosition = cursorPosition;
 		} else {
-			newCursorPosition = cursorPosition + textDifference;
+			newCursorPosition = cursorPosition + maskDelta;
 		}
 
 		setCursorPosition(this.inputElement, newCursorPosition);
-	}
-
-	getFormattedValue(n) {
-		if (!n) {
-			return n;
-		}
-
-		return getFormattedString(n);
+		return;
 	}
 
 	mount(node) {
@@ -149,21 +132,24 @@ class FormattedInput extends React.Component {
 		this.inputElement.focus();
 	}
 
+	saveCursorPosition(evt) {
+		this.setState({
+			cursorPosition: getCursorPosition(this.inputElement),
+			shiftKey: evt.shiftKey,
+		});
+	}
+
 	handleChange(evt) {
 		const { value } = evt.target;
 		const newValue = this.getUnformattedValue(value).toString();
+		this.saveCursorPosition(evt);
 		if (newValue === this.state.value) { return; }
-		// const updatedEvent = Object.assign({}, evt, {
-		//	 target: Object.assign({}, evt.target, {
-		//		 value: newValue,
-		//	 }),
-		// });
 		this.props.onChange(evt, newValue);
 	}
 
 	handleKeyDown(evt) {
 		this.setState({
-			cursorPosition: getCursorPosition(this.inputElement),
+			cursorPositionBeforeChange: getCursorPosition(this.inputElement),
 			keyCode: evt.which,
 			selectionStart: evt.target.selectionStart,
 			selectionEnd: evt.target.selectionEnd,
@@ -174,12 +160,13 @@ class FormattedInput extends React.Component {
 		const otherProps = omit(this.props, ['value', 'getUnformattedValue', 'getFormattedValue']);
 		return (
 			<input
-				type="text"
-				{...otherProps}
-				ref={this.mount}
-				value={this.state.text}
-				onKeyDown={this.handleKeyDown}
-				onChange={this.handleChange}
+			type="text"
+			{...otherProps}
+			ref={this.mount}
+			defaultValue={this.state.text}
+			onKeyDown={this.handleKeyDown}
+			onKeyUp={this.saveCursorPosition}
+			onChange={this.handleChange}
 			/>
 		);
 	}
