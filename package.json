@@ -30,10 +30,12 @@
     "babel-preset-react": "^6.11.1",
     "babel-register": "^6.14.0",
     "enzyme": "^2.4.1",
+    "jsdom": "^9.8.3",
     "react": "^15.2.0",
     "react-addons-test-utils": "^15.3.1",
     "react-dom": "^15.2.0",
     "tape": "^4.6.0",
-    "webpack": "^1.13.1"
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.16.2"
   }
 }
