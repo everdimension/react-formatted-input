@@ -1,5 +1,6 @@
+/* global document */
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'; // eslint-disable-line import/no-extraneous-dependencies
 import FormattedInput from '../../src';
 
 function getFormattedValue(str) {
@@ -7,7 +8,7 @@ function getFormattedValue(str) {
     return str;
   }
   const formatted = new Intl.NumberFormat('ru', { maximumFractionDigits: 20 }).format(str);
-  if (/[^\.]+\.$/.test(str)) {
+  if (/[^.]+\.$/.test(str)) {
     return `${formatted},`;
   }
   return formatted;
@@ -45,12 +46,11 @@ class NumberInput extends React.Component {
           onChange={this.handleChange}
         />
       </div>
-
     );
   }
 }
 
 ReactDOM.render(
   <NumberInput />,
-  document.getElementById('app')
+  document.getElementById('app'),
 );
