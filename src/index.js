@@ -18,18 +18,27 @@ function isModifiedEvent(event) {
 
 const propTypes = {
   value: t.oneOfType([t.number, t.string]),
-  onChange: t.func.isRequired,
+  defaultValue: t.oneOfType([t.number, t.string]),
+  onChange: t.func,
   getFormattedValue: t.func,
   getUnformattedValue: t.func,
 };
 
 const defaultProps = {
-  value: '',
+  getFormattedValue: x => x,
+  getUnformattedValue: x => x,
 };
 
 class FormattedInput extends React.Component {
   constructor(props) {
     super(props);
+
+    if ('value' in props && 'defaultValue' in props) {
+      console.error(
+        'Both value and defaultValue props are provided to FormattedInput. ' +
+        'Input elements must be either controlled or uncontrolled',
+      );
+    }
 
     this.handleChange = this.handleChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -39,12 +48,13 @@ class FormattedInput extends React.Component {
     this.mount = this.mount.bind(this);
     this.focus = this.focus.bind(this);
 
-    const { value } = props;
+    const value = 'value' in props ? props.value : props.defaultValue;
     this.state = {
       selectionStart: 0,
       selectionEnd: 0,
       cursorPosition: 0,
       value,
+      isUncontrolledInput: 'defaultValue' in props,
       text: this.getFormattedValue(value),
       keyCode: null,
       isModifiedEvent: false,
@@ -52,6 +62,9 @@ class FormattedInput extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (this.state.isUncontrolledInput) {
+      return;
+    }
     const { value } = nextProps;
     const text = this.getFormattedValue(value);
 
@@ -67,9 +80,6 @@ class FormattedInput extends React.Component {
       eventIsModified,
       keyCode,
     } = this.state;
-    if (this.inputElement.value !== text) {
-      this.inputElement.value = text;
-    }
     if (text === prevState.text) {
       if (
         !eventIsModified &&
@@ -100,7 +110,10 @@ class FormattedInput extends React.Component {
     const prevTextBeforeCursor = prevState.text.slice(0, prevState.cursorPosition);
     const valueBeforeCursor = value.slice(0, cursorPosition);
     const textBeforeCursor = text.slice(0, cursorPosition);
-    const prevMaskDifference = difference(prevTextBeforeCursor.split(''), prevValueBeforeCursor.split(''));
+    const prevMaskDifference = difference(
+      prevTextBeforeCursor.split(''),
+      prevValueBeforeCursor.split(''),
+    );
     const maskDifference = difference(textBeforeCursor.split(''), valueBeforeCursor.split(''));
     const maskDelta = maskDifference.length - prevMaskDifference.length;
 
@@ -145,7 +158,15 @@ class FormattedInput extends React.Component {
     const newValue = this.getUnformattedValue(value).toString();
     this.saveCursorPosition(evt);
     if (newValue === this.state.value) { return; }
-    this.props.onChange(evt, newValue);
+    if (this.props.onChange) {
+      this.props.onChange(evt, newValue);
+    }
+    if (this.state.isUncontrolledInput) {
+      this.setState({
+        value: newValue,
+        text: this.getFormattedValue(newValue),
+      });
+    }
   }
 
   handleKeyDown(evt) {
@@ -156,13 +177,18 @@ class FormattedInput extends React.Component {
   }
 
   render() {
-    const domProps = omit(this.props, ['value', 'getUnformattedValue', 'getFormattedValue']);
+    const domProps = omit(this.props, [
+      'value',
+      'defaultValue',
+      'getUnformattedValue',
+      'getFormattedValue',
+    ]);
     return (
       <input
         type="text"
         {...domProps}
         ref={this.mount}
-        defaultValue={this.state.text}
+        value={this.state.text}
         onKeyDown={this.handleKeyDown}
         onKeyUp={this.saveCursorPosition}
         onChange={this.handleChange}

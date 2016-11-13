@@ -36,21 +36,62 @@ class NumberInput extends React.Component {
 
   render() {
     return (
-      <div>
-        <p>testing examples page</p>
-        <FormattedInput
-          type="text"
-          value={this.state.value}
-          getFormattedValue={getFormattedValue}
-          getUnformattedValue={getUnformattedValue}
-          onChange={this.handleChange}
-        />
-      </div>
+      <FormattedInput
+        type="text"
+        getFormattedValue={getFormattedValue}
+        getUnformattedValue={getUnformattedValue}
+        value={this.state.value || ''}
+        onChange={this.handleChange}
+      />
     );
   }
 }
 
+class NumberInputUncontrolled extends React.Component {
+  constructor() {
+    super();
+    this.state = {};
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(evt, rawValue) {
+    this.setState({
+      value: rawValue,
+    });
+  }
+
+  render() {
+    return (
+      <FormattedInput
+        type="text"
+        getFormattedValue={getFormattedValue}
+        getUnformattedValue={getUnformattedValue}
+        defaultValue="1234"
+        onChange={this.handleChange}
+      />
+    );
+  }
+}
+
+function App() {
+  return (
+    <div>
+      <h3>formatted inputs</h3>
+      <p>
+        Controlled input:
+        <br />
+        <NumberInput />
+      </p>
+      <p>
+        Uncontrolled input:
+        <br />
+        <NumberInputUncontrolled />
+      </p>
+    </div>
+  );
+}
+
 ReactDOM.render(
-  <NumberInput />,
+  <App />,
   document.getElementById('app'),
 );
