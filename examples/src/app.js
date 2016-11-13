@@ -73,6 +73,32 @@ class NumberInputUncontrolled extends React.Component {
   }
 }
 
+function addThousandsSeparator(str = '') {
+  return str.split('').reverse().map((l, i) => {
+    if (i && i % 3 === 0) {
+      return `${l},`;
+    }
+    return l;
+  })
+    .reverse()
+    .join('');
+}
+
+function removeThousandsSeparator(str = '') {
+  return str.replace(/\D/g, '');
+}
+
+function ThousandsSeparator() {
+  return (
+    <FormattedInput
+      type="text"
+      getFormattedValue={addThousandsSeparator}
+      getUnformattedValue={removeThousandsSeparator}
+      defaultValue="1234"
+    />
+  );
+}
+
 function App() {
   return (
     <div>
@@ -86,6 +112,11 @@ function App() {
         Uncontrolled input:
         <br />
         <NumberInputUncontrolled />
+      </p>
+      <p>
+        Simple thousands separator
+        <br />
+        <ThousandsSeparator />
       </p>
     </div>
   );
