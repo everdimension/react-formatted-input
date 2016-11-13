@@ -1,0 +1,6 @@
+{
+  "name": "React-formatted-input",
+  "tagline": "",
+  "body": "A react component for formatting input text based on the provided formatter\r\nfunction.\r\n\r\n### Usage\r\n\r\nA simple input which adds commas as a thousands separator:\r\n\r\n```javascript\r\nfunction addThousandsSeparator(str = '') {\r\n  return str.split('').reverse().map((l, i) => {\r\n    if (i && i % 3 === 0) {\r\n      return `${l},`;\r\n    }\r\n    return l;\r\n  })\r\n    .reverse()\r\n    .join('');\r\n}\r\n\r\nfunction removeThousandsSeparator(str = '') {\r\n  return str.replace(/\\D/g, '');\r\n}\r\n\r\nfunction ThousandsSeparator() {\r\n  return (\r\n    <FormattedInput\r\n      type=\"text\"\r\n      getFormattedValue={addThousandsSeparator}\r\n      getUnformattedValue={removeThousandsSeparator}\r\n      defaultValue=\"1234\"\r\n    />\r\n  );\r\n}\r\n```\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
