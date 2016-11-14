@@ -48,6 +48,21 @@ table {
 Theme Styles
 *******************************************************************************/
 
+* {
+  box-sizing: border-box;
+}
+
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+.highlight {
+  margin-left: -10px;
+  margin-right: -10px;
+  overflow: hidden;
+}
+
 body {
   box-sizing: border-box;
   color:#373737;
@@ -384,12 +399,11 @@ Small Device Styles
   }
 
   .inner {
-    min-width: 320px;
     max-width: 480px;
   }
 
   #project_title {
-  font-size: 32px;
+    font-size: 25px;
   }
 
   h1 {
@@ -417,7 +431,6 @@ Small Device Styles
   }
 
   code, pre {
-    min-width: 320px;
     max-width: 480px;
     font-size: 11px;
   }
