@@ -38,6 +38,7 @@ class NumberInput extends React.Component {
     return (
       <FormattedInput
         type="text"
+        {...this.props}
         getFormattedValue={getFormattedValue}
         getUnformattedValue={getUnformattedValue}
         value={this.state.value || ''}
@@ -64,6 +65,7 @@ class NumberInputUncontrolled extends React.Component {
     return (
       <FormattedInput
         type="text"
+        {...this.props}
         getFormattedValue={getFormattedValue}
         getUnformattedValue={getUnformattedValue}
         defaultValue="1234"
@@ -88,10 +90,11 @@ function removeThousandsSeparator(str = '') {
   return str.replace(/\D/g, '');
 }
 
-function ThousandsSeparator() {
+function ThousandsSeparator(props) {
   return (
     <FormattedInput
       type="text"
+      {...props}
       getFormattedValue={addThousandsSeparator}
       getUnformattedValue={removeThousandsSeparator}
       defaultValue="1234"
@@ -102,21 +105,20 @@ function ThousandsSeparator() {
 function App() {
   return (
     <div>
-      <h3>formatted inputs</h3>
       <p>
-        Controlled input:
+        <label htmlFor="numberInput">Controlled input:</label>
         <br />
-        <NumberInput />
+        <NumberInput id="numberInput" />
       </p>
       <p>
-        Uncontrolled input:
+        <label htmlFor="numberInputUncontrolled">Uncontrolled input:</label>
         <br />
-        <NumberInputUncontrolled />
+        <NumberInputUncontrolled id="numberInputUncontrolled" />
       </p>
       <p>
-        Simple thousands separator
+        <label htmlFor="thousandsSeparator">Simple thousands separator</label>
         <br />
-        <ThousandsSeparator />
+        <ThousandsSeparator id="thousandsSeparator" />
       </p>
     </div>
   );
