@@ -1,13 +1,17 @@
 const path = require('path');
 const fs = require('fs');
 
-module.exports = {
+const env = process.env.NODE_ENV || 'development';
+const production = env === 'production';
+const development = env === 'development';
+
+const config = {
   entry: {
-    app: [path.resolve(__dirname, 'src/app.js')],
+    examples: [path.resolve(__dirname, 'src/examples.js')],
   },
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: '[name].bundle.js',
+    filename: development ? '[name].bundle.js' : '[name].bundle[hash].js',
   },
   module: {
     loaders: [
@@ -21,15 +25,15 @@ module.exports = {
   plugins: [
     function copyPage() {
       // provide src/index.html as an asset
-      this.plugin('emit', function (compilation, cb) {
+      this.plugin('emit', function onEmit(compilation, cb) { // eslint-disable-line prefer-arrow-callback
         const srcPath = path.join(__dirname, 'src/index.html');
         const fileContents = fs.readFileSync(srcPath, 'utf8');
 
-        compilation.assets['index.html'] = {
-          source: function () {
+        compilation.assets['index.html'] = { // eslint-disable-line no-param-reassign
+          source() {
             return fileContents;
           },
-          size: function () {
+          size() {
             return fileContents.length;
           },
         };
@@ -45,3 +49,18 @@ module.exports = {
     publicPath: '/',
   },
 };
+
+if (production) {
+  config.plugins.push(
+    function saveHashStats() {
+      this.plugin('done', function saveStats(stats) { // eslint-disable-line prefer-arrow-callback
+        const statsJson = JSON.stringify({
+          hash: stats.hash,
+        });
+        fs.writeFileSync(path.join(__dirname, 'build/stats.json'), statsJson);
+      });
+    }
+  );
+}
+
+module.exports = config;
