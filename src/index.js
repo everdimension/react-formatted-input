@@ -42,6 +42,7 @@ class FormattedInput extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     this.saveCursorPosition = this.saveCursorPosition.bind(this);
     this.getFormattedValue = props.getFormattedValue;
     this.getUnformattedValue = props.getUnformattedValue;
@@ -54,7 +55,8 @@ class FormattedInput extends React.Component {
       selectionEnd: 0,
       cursorPosition: 0,
       value,
-      isUncontrolledInput: 'defaultValue' in props,
+      inputLength: 0,
+      isUncontrolledInput: !('value' in props),
       text: this.getFormattedValue(value),
       keyCode: null,
       isModifiedEvent: false,
@@ -79,6 +81,8 @@ class FormattedInput extends React.Component {
       value,
       eventIsModified,
       keyCode,
+      keyPressCode,
+      inputLength,
     } = this.state;
     if (text === prevState.text) {
       if (
@@ -110,6 +114,8 @@ class FormattedInput extends React.Component {
     const prevTextBeforeCursor = prevState.text.slice(0, prevState.cursorPosition);
     const valueBeforeCursor = value.slice(0, cursorPosition);
     const textBeforeCursor = text.slice(0, cursorPosition);
+    const valueDifference = value.length - prevState.value.length;
+    const unexpectedDifference = valueDifference - inputLength;
     const prevMaskDifference = difference(
       prevTextBeforeCursor.split(''),
       prevValueBeforeCursor.split(''),
@@ -119,20 +125,24 @@ class FormattedInput extends React.Component {
 
     let newCursorPosition;
 
+    const enteredChar = String.fromCharCode(keyPressCode);
+
     if (
       maskDelta === 0 &&
       maskDifference.join('') !== prevMaskDifference.join('') &&
+      maskDifference.indexOf(enteredChar) !== -1 &&
       maskDifference.indexOf(text.charAt(prevState.cursorPosition - 1)) !== -1
     ) {
       newCursorPosition = prevState.cursorPosition;
     } else if (
       maskDelta === 1 &&
       maskDifference.join('') !== prevMaskDifference.join('') &&
+      maskDifference.indexOf(enteredChar) !== -1 &&
       maskDifference.indexOf(text.charAt(cursorPosition - 1)) !== -1
     ) {
       newCursorPosition = cursorPosition;
     } else {
-      newCursorPosition = cursorPosition + maskDelta;
+      newCursorPosition = cursorPosition + maskDelta + unexpectedDifference;
     }
 
     setCursorPosition(this.inputElement, newCursorPosition);
@@ -155,6 +165,10 @@ class FormattedInput extends React.Component {
 
   handleChange(evt) {
     const { value } = evt.target;
+    const inputLength = value.length - this.state.text.length;
+    this.setState({
+      inputLength,
+    });
     const newValue = this.getUnformattedValue(value).toString();
     this.saveCursorPosition(evt);
     if (newValue === this.state.value) { return; }
@@ -165,6 +179,7 @@ class FormattedInput extends React.Component {
       this.setState({
         value: newValue,
         text: this.getFormattedValue(newValue),
+        inputLength,
       });
     }
   }
@@ -173,6 +188,12 @@ class FormattedInput extends React.Component {
     this.setState({
       keyCode: evt.which,
       eventIsModified: isModifiedEvent(evt),
+    });
+  }
+
+  handleKeyPress(evt) {
+    this.setState({
+      keyPressCode: evt.which,
     });
   }
 
@@ -189,6 +210,7 @@ class FormattedInput extends React.Component {
         {...domProps}
         ref={this.mount}
         value={this.state.text}
+        onKeyPress={this.handleKeyPress}
         onKeyDown={this.handleKeyDown}
         onKeyUp={this.saveCursorPosition}
         onChange={this.handleChange}
