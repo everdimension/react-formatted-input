@@ -63,6 +63,11 @@ Theme Styles
   overflow: hidden;
 }
 
+input {
+  padding: 10px;
+  font-size: 1em;
+}
+
 body {
   box-sizing: border-box;
   color:#373737;
