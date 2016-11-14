@@ -1,7 +1,11 @@
 /* global document */
 import React from 'react';
 import ReactDOM from 'react-dom'; // eslint-disable-line import/no-extraneous-dependencies
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-light.css';
 import FormattedInput from '../../src';
+import PhoneNumberInput from './components/PhoneNumberInput';
+import ShowMore from './components/ShowMore';
 
 function getFormattedValue(str) {
   if (!str) {
@@ -102,26 +106,46 @@ function ThousandsSeparator(props) {
   );
 }
 
-function App() {
-  return (
-    <div>
-      <p>
-        <label htmlFor="numberInput">Controlled input:</label>
-        <br />
-        <NumberInput id="numberInput" />
-      </p>
-      <p>
-        <label htmlFor="numberInputUncontrolled">Uncontrolled input:</label>
-        <br />
-        <NumberInputUncontrolled id="numberInputUncontrolled" />
-      </p>
-      <p>
-        <label htmlFor="thousandsSeparator">Simple thousands separator</label>
-        <br />
-        <ThousandsSeparator id="thousandsSeparator" />
-      </p>
-    </div>
-  );
+class App extends React.Component {
+  componentDidMount() {
+    const codeBlocks = document.querySelectorAll('.code-blocks');
+    console.log('codeBlocks', codeBlocks);
+    Array.prototype.forEach.call(codeBlocks, (block) => {
+      hljs.highlightBlock(block);
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <p>
+          <label htmlFor="numberInput">Controlled input:</label>
+          <br />
+          <NumberInput id="numberInput" />
+        </p>
+        <p>
+          <label htmlFor="numberInputUncontrolled">Uncontrolled input:</label>
+          <br />
+          <NumberInputUncontrolled id="numberInputUncontrolled" />
+        </p>
+        <p>
+          <label htmlFor="thousandsSeparator">Simple thousands separator</label>
+          <br />
+          <ThousandsSeparator id="thousandsSeparator" />
+        </p>
+        <p>
+          <label htmlFor="phoneInput">Phone number input</label>
+          <br />
+          <PhoneNumberInput id="phoneInput" />
+        </p>
+        <ShowMore>
+          <pre className="code-blocks"><code>
+            {require('raw!./components/PhoneNumberInputCode.html')}
+          </code></pre>
+        </ShowMore>
+      </div>
+    );
+  }
 }
 
 ReactDOM.render(

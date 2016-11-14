@@ -1,0 +1,7 @@
+.ShowMoreBtn {
+  cursor: pointer;
+  border: none;
+  background-color: #0090ff;
+  color: white;
+  padding: 10px 20px;
+}

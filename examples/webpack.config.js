@@ -20,6 +20,10 @@ const config = {
         exclude: /node_modules/,
         loader: 'babel',
       },
+      {
+        test: /\.css$/,
+        loader: 'style!css',
+      },
     ],
   },
   plugins: [
@@ -49,6 +53,10 @@ const config = {
     publicPath: '/',
   },
 };
+
+if (development) {
+	config.devtool = 'source-map';
+}
 
 if (production) {
   config.plugins.push(
