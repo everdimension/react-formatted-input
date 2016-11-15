@@ -109,7 +109,6 @@ function ThousandsSeparator(props) {
 class App extends React.Component {
   componentDidMount() {
     const codeBlocks = document.querySelectorAll('.code-blocks');
-    console.log('codeBlocks', codeBlocks);
     Array.prototype.forEach.call(codeBlocks, (block) => {
       hljs.highlightBlock(block);
     });

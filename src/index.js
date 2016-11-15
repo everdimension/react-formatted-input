@@ -110,8 +110,9 @@ class FormattedInput extends React.Component {
       return;
     }
 
-    const prevValueBeforeCursor = prevState.value.slice(0, prevState.cursorPosition);
-    const prevTextBeforeCursor = prevState.text.slice(0, prevState.cursorPosition);
+    const prevPosition = Math.min(prevState.cursorPosition, cursorPosition);
+    const prevValueBeforeCursor = prevState.value.slice(0, prevPosition);
+    const prevTextBeforeCursor = prevState.text.slice(0, prevPosition);
     const valueBeforeCursor = value.slice(0, cursorPosition);
     const textBeforeCursor = text.slice(0, cursorPosition);
     const valueDifference = value.length - prevState.value.length;
