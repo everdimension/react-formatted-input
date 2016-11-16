@@ -54,10 +54,10 @@ class FormattedInput extends React.Component {
       selectionStart: 0,
       selectionEnd: 0,
       cursorPosition: 0,
-      value,
+      value: String(value),
       inputLength: 0,
       isUncontrolledInput: !('value' in props),
-      text: this.getFormattedValue(value),
+      text: String(this.getFormattedValue(value)),
       keyCode: null,
       isModifiedEvent: false,
     };
@@ -70,7 +70,10 @@ class FormattedInput extends React.Component {
     const { value } = nextProps;
     const text = this.getFormattedValue(value);
 
-    const newState = { value, text };
+    const newState = {
+      value: String(value),
+      text: String(text),
+    };
     this.setState(newState);
   }
 
@@ -178,8 +181,8 @@ class FormattedInput extends React.Component {
     }
     if (this.state.isUncontrolledInput) {
       this.setState({
-        value: newValue,
-        text: this.getFormattedValue(newValue),
+        value: String(newValue),
+        text: String(this.getFormattedValue(newValue)),
         inputLength,
       });
     }
