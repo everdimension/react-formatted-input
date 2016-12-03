@@ -5,6 +5,7 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css';
 import FormattedInput from '../../src';
 import PhoneNumberInput from './components/PhoneNumberInput';
+import PhoneNumberInputControlled from './components/PhoneNumberInputControlled';
 import ShowMore from './components/ShowMore';
 
 function getFormattedValue(str) {
@@ -142,6 +143,12 @@ class App extends React.Component {
             {require('raw!./components/PhoneNumberInputCode.html')}
           </code></pre>
         </ShowMore>
+
+        <p>
+          <label htmlFor="phoneInputControlled">Controlled phone number input</label>
+          <br />
+          <PhoneNumberInput id="phoneInputControlled" />
+        </p>
       </div>
     );
   }

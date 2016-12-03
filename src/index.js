@@ -72,7 +72,7 @@ class FormattedInput extends React.Component {
     const text = this.getFormattedValue(value);
 
     const newState = {
-      value: String(value),
+      value: value == null ? '' : String(value),
       text: String(text),
     };
     this.setState(newState);
