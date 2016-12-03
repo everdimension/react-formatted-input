@@ -50,11 +50,12 @@ class FormattedInput extends React.Component {
     this.focus = this.focus.bind(this);
 
     const value = 'value' in props ? props.value : props.defaultValue;
+
     this.state = {
       selectionStart: 0,
       selectionEnd: 0,
       cursorPosition: 0,
-      value: String(value),
+      value: value == null ? '' : String(value),
       inputLength: 0,
       isUncontrolledInput: !('value' in props),
       text: String(this.getFormattedValue(value)),
