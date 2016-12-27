@@ -44,8 +44,6 @@ class FormattedInput extends React.Component {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.saveCursorPosition = this.saveCursorPosition.bind(this);
-    this.getFormattedValue = props.getFormattedValue;
-    this.getUnformattedValue = props.getUnformattedValue;
     this.mount = this.mount.bind(this);
     this.focus = this.focus.bind(this);
 
@@ -58,7 +56,7 @@ class FormattedInput extends React.Component {
       value: value == null ? '' : String(value),
       inputLength: 0,
       isUncontrolledInput: !('value' in props),
-      text: String(this.getFormattedValue(value)),
+      text: String(props.getFormattedValue(value)),
       keyCode: null,
       isModifiedEvent: false,
     };
@@ -69,7 +67,7 @@ class FormattedInput extends React.Component {
       return;
     }
     const { value } = nextProps;
-    const text = this.getFormattedValue(value);
+    const text = nextProps.getFormattedValue(value);
 
     const newState = {
       value: value == null ? '' : String(value),
@@ -174,7 +172,7 @@ class FormattedInput extends React.Component {
     this.setState({
       inputLength,
     });
-    const newValue = this.getUnformattedValue(value).toString();
+    const newValue = this.props.getUnformattedValue(value).toString();
     this.saveCursorPosition(evt);
     if (newValue === this.state.value) { return; }
     if (this.props.onChange) {
@@ -183,7 +181,7 @@ class FormattedInput extends React.Component {
     if (this.state.isUncontrolledInput) {
       this.setState({
         value: String(newValue),
-        text: String(this.getFormattedValue(newValue)),
+        text: String(this.props.getFormattedValue(newValue)),
         inputLength,
       });
     }
