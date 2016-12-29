@@ -22,6 +22,9 @@ const propTypes = {
   onChange: t.func,
   getFormattedValue: t.func,
   getUnformattedValue: t.func,
+  onKeyPress: t.func,
+  onKeyDown: t.func,
+  onKeyUp: t.func,
 };
 
 const defaultProps = {
@@ -43,6 +46,7 @@ class FormattedInput extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
     this.saveCursorPosition = this.saveCursorPosition.bind(this);
     this.mount = this.mount.bind(this);
     this.focus = this.focus.bind(this);
@@ -151,6 +155,10 @@ class FormattedInput extends React.Component {
     setCursorPosition(this.inputElement, newCursorPosition);
   }
 
+  getInput() {
+    return this.inputElement;
+  }
+
   mount(node) {
     this.inputElement = node;
   }
@@ -173,7 +181,7 @@ class FormattedInput extends React.Component {
       inputLength,
     });
     const newValue = this.props.getUnformattedValue(value).toString();
-    this.saveCursorPosition(evt);
+    this.saveCursorPosition();
     if (newValue === this.state.value) { return; }
     if (this.props.onChange) {
       this.props.onChange(evt, newValue);
@@ -192,12 +200,25 @@ class FormattedInput extends React.Component {
       keyCode: evt.which,
       eventIsModified: isModifiedEvent(evt),
     });
+    if (this.props.onKeyDown) {
+      this.props.onKeyDown(evt);
+    }
+  }
+
+  handleKeyUp(evt) {
+    this.saveCursorPosition();
+    if (this.props.onKeyUp) {
+      this.props.onKeyUp(evt);
+    }
   }
 
   handleKeyPress(evt) {
     this.setState({
       keyPressCode: evt.which,
     });
+    if (this.props.onKeyPress) {
+      this.props.onKeyPress(evt);
+    }
   }
 
   render() {
@@ -213,9 +234,9 @@ class FormattedInput extends React.Component {
         {...domProps}
         ref={this.mount}
         value={this.state.text}
-        onKeyPress={this.handleKeyPress}
         onKeyDown={this.handleKeyDown}
-        onKeyUp={this.saveCursorPosition}
+        onKeyUp={this.handleKeyUp}
+        onKeyPress={this.handleKeyPress}
         onChange={this.handleChange}
       />
     );
