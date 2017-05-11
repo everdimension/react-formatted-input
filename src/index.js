@@ -1,3 +1,4 @@
+/* global document */
 import React, { PropTypes as t } from 'react';
 import omit from 'lodash/omit';
 import difference from 'lodash/difference';
@@ -90,6 +91,12 @@ class FormattedInput extends React.Component {
       keyPressCode,
       inputLength,
     } = this.state;
+    if (document.activeElement !== this.inputElement) {
+      // we don't really need to change cursor position
+      // because there's no cursor, but if we do,
+      // there's a bug in Safari: https://jsfiddle.net/everdimension/88atczbz/
+      return;
+    }
     if (text === prevState.text) {
       if (
         !eventIsModified &&
