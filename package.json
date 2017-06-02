@@ -22,7 +22,8 @@
   ],
   "license": "ISC",
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0"
+    "react": "^0.14.0 || ^15.0.0",
+    "prop-types": "^15.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
@@ -42,6 +43,7 @@
     "google-libphonenumber": "^2.0.4",
     "highlight.js": "^9.8.0",
     "jsdom": "^9.8.3",
+    "prop-types": "^15.5.10",
     "raw-loader": "^0.5.1",
     "react": "^15.2.0",
     "react-addons-test-utils": "^15.3.1",

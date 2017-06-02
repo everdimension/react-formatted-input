@@ -1,5 +1,6 @@
 /* global document */
-import React, { PropTypes as t } from 'react';
+import React from 'react';
+import t from 'prop-types';
 import omit from 'lodash/omit';
 import difference from 'lodash/difference';
 import findIndex from 'lodash/findIndex';
