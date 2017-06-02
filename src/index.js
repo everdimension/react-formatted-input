@@ -41,7 +41,7 @@ class FormattedInput extends React.Component {
     if ('value' in props && 'defaultValue' in props) {
       console.error(
         'Both value and defaultValue props are provided to FormattedInput. ' +
-        'Input elements must be either controlled or uncontrolled',
+          'Input elements must be either controlled or uncontrolled',
       );
     }
 
@@ -101,7 +101,8 @@ class FormattedInput extends React.Component {
     if (text === prevState.text) {
       if (
         !eventIsModified &&
-        (cursorPosition !== prevState.cursorPosition || keyCode === KEY_CODES.DEL)
+        (cursorPosition !== prevState.cursorPosition ||
+          keyCode === KEY_CODES.DEL)
       ) {
         setCursorPosition(this.inputElement, cursorPosition);
       }
@@ -135,7 +136,10 @@ class FormattedInput extends React.Component {
       prevTextBeforeCursor.split(''),
       prevValueBeforeCursor.split(''),
     );
-    const maskDifference = difference(textBeforeCursor.split(''), valueBeforeCursor.split(''));
+    const maskDifference = difference(
+      textBeforeCursor.split(''),
+      valueBeforeCursor.split(''),
+    );
     const maskDelta = maskDifference.length - prevMaskDifference.length;
 
     let newCursorPosition;
@@ -190,7 +194,9 @@ class FormattedInput extends React.Component {
     });
     const newValue = this.props.getUnformattedValue(value).toString();
     this.saveCursorPosition();
-    if (newValue === this.state.value) { return; }
+    if (newValue === this.state.value) {
+      return;
+    }
     if (this.props.onChange) {
       this.props.onChange(evt, newValue);
     }
