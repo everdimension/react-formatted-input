@@ -39,7 +39,7 @@ test('FormattedInput', (t) => {
     const wrapper = getWrapperComponent();
 
     const renderedInput = wrapper.find('input');
-    const inputNode = renderedInput.get(0);
+    const inputNode = renderedInput.getDOMNode();
 
     assert.equal(renderedInput.length, 1, 'renders input element');
     assert.equal(inputNode.getAttribute('type'), 'text', 'passed type attribute');
