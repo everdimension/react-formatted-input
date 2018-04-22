@@ -25,6 +25,10 @@
     "react": "^0.14.0 || ^15.0.0 || ^16.0.0",
     "prop-types": "^15.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/everdimension/react-formatted-input.git"
+  },
   "devDependencies": {
     "babel-cli": "^6.10.1",
     "babel-core": "^6.10.4",
