@@ -8,7 +8,7 @@
     "dev:examples": "webpack-dev-server --config ./examples/webpack.config.js",
     "build:examples": "webpack --config ./examples/webpack.config.js",
     "build:examples:prod": "NODE_ENV=production webpack --config ./examples/webpack.config.js",
-    "prepublish": "npm run test && npm run build",
+    "prepack": "npm run test && npm run build",
     "lint": "eslint './src/**/*.js'",
     "test": "tape -r babel-register -r ./tests/.setup.js ./tests/*.test.js"
   },
